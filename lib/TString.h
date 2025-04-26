@@ -14,6 +14,7 @@ public:
 
   char* GetStr();
   int GetLen();
+  void SetStr(char* str_);
 
   TString operator+ (const TString& p);
 	TString operator* (int n);

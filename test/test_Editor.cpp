@@ -113,7 +113,7 @@ TEST(TStringTest, WordCount) {
     EXPECT_EQ(0, s.WordCount("abc"));
 }
 
-/* TEST(TStringTest, Split) {
+TEST(TStringTest, Split) {
     char test[] = "a,b,c";
     TString s(test, 5);
     TString* res = new TString[3];
@@ -122,7 +122,7 @@ TEST(TStringTest, WordCount) {
     EXPECT_STREQ("b", res[1].GetStr());
     EXPECT_STREQ("c", res[2].GetStr());
     delete[] res;
-} */
+}
 
 TEST(TStringTest, FirstIndex) {
     char test[] = "find me";

@@ -47,7 +47,7 @@ TString::TString(TString&& p)
 
 TString::~TString()
 {
-  if (str != 0)
+  if (str != nullptr)
     delete[] str;
   str = nullptr;
 }
@@ -60,6 +60,17 @@ char* TString::GetStr()
 int TString::GetLen()
 {
   return len;
+}
+
+void TString::SetStr(char* str_)
+{
+  if (str != nullptr) delete[] str;
+  str = nullptr;
+  if (str_ == nullptr) return;
+  len = strlen(str_);
+  str = new char[len+1]{0};
+  strncpy(str, str_, len);
+  str[len+1] = '\0';
 }
 
 TString TString::operator+ (const TString& p)
@@ -169,19 +180,21 @@ std::ostream& operator<< (std::ostream& o, TString& s)
   //o << s.str << std::endl;
   if (s.GetStr() == nullptr)
   {
-    o << '\0' << std::endl;
+    o << '\0';
     return o;
   }
-  o << s.str << std::endl;
+  o << s.str;
   return o;
 }
 
 std::istream& operator>> (std::istream& i, TString& s)
 {
+  char buf[1024];
   std::cout << "Input length of your string:\t";
   i >> s.len;
   std::cout << "Now input your string:\t";
-  i >> s.str;
+  i >> buf;
+  s.SetStr(buf);
   return i;
 }
 
@@ -194,37 +207,28 @@ int TString::WordCount(const char* word)
 	if (l > len)
 		return 0;
 	int i = 0;
-	while (i < len - l + 1)
+  //abababa
+	while (i + l - 1 < len)
 	{
 		bool flag = true;
 		if (str[i] == word[0])
 		{
-			for (int j = 1; j < l; ++j)
-			{
-				if (str[i + j] != word[j])
-        {
-					flag = false;
-          break;
-        }
-			}
+    for (int j = 1; j < l; ++j)
+    {
+      if (str[i + j] != word[j])
+      {
+        flag = false;
+        break;
+      }
+    }
 		}
 		else
 			flag = false;
 		if (flag)
-		{
 			count++;
-			//i += l - 1; // -1 ����� �������������� ����� ���������
-      i++;
-		}
-		else
-			i++;
+    i++;
 	}
 	return count;
-}
-
-int TString::NumberOfSplits(const char* word)
-{
-  return len - WordCount(word) * strlen(word);
 }
 
 void TString::Split(const char* word, TString*& res)
@@ -232,9 +236,10 @@ void TString::Split(const char* word, TString*& res)
 	int temp = strlen(word);
 	//int count = WordCount(word);
 	int i = 0;
-	int last = 0, n = 0, m;
+	int last = 0, n = 0, m = 0;
 	while (i + temp - 1 < len)
-  //while (i < len+1)
+  //while (i < len - temp)
+  //abobababo
 	{
 		bool flag = true;
 		if (str[i] != word[0])
@@ -242,29 +247,46 @@ void TString::Split(const char* word, TString*& res)
 			i++;
       continue;
 		}
-		for (int j = 1; j < temp; ++j)
-		{
-			if (str[i + j] != word[j])
-			{
-				flag = false;
-				break;
-			}
-		}
+    if (temp > 1)
+      for (int j = 1; j < temp; ++j)
+      {
+        if (str[i + j] != word[j])
+        {
+          flag = false;
+          break;
+        }
+      }
 		if (flag)
 		{
+      //std::cout << "111" << '\n';
       m = 0;
-			for (int k = last; k < i; ++k)
+      char* aboba = new char[i - last + 1]{0};
+      //std::cout << i << "    " << last << std::endl;
+			for (int k = last; k < i; k++)
 			{
-				res[n].str[m] = str[k];
+				aboba[m] = str[k];
+        //std::cout << i << '\t' << m << std::endl;
 				m++;
 			}
+      res[n].SetStr(aboba);
 			last = i + temp;
-			i++;
+			i = last;
+      i++;
 			n++;
 		}
 		else
 			i++;
 	}
+  m = 0;
+  char* aboba = new char[len - last + 1];
+  //std::cout << i << "    " << last << std::endl;
+  for (int k = last; k < len; k++)
+  {
+    aboba[m] = str[k];
+    //std::cout << i << '\t' << m << std::endl;
+    m++;
+  }
+  res[n].SetStr(aboba);
 }
 
 int TString::FirstIndex(const char* word)
